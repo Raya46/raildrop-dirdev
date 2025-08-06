@@ -10,9 +10,9 @@ const step4 = () => {
                     source={require("@/assets/images/onboarding-success.png")}
                     className="w-[300px] h-[300px] mr-[-10px]"
                 />
-                <View className="mx-auto">
+                <View className=" flex flex-col justify-between">
                     <Text className="text-center text-semibold text-xl">Your Profile is Ready!</Text>
-                    <Text className="opacity-60">
+                    <Text className="opacity-60 mx-8">
                         From now on, you can enjoy all available features and explore the best experience with us.
                     </Text>
                 </View>
