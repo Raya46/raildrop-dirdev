@@ -1,10 +1,12 @@
 import { FontAwesome } from "@expo/vector-icons";
-import { Stack, useRouter } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 const PaymentResultScreen = () => {
+  const params = useLocalSearchParams();
   const router = useRouter();
+  const packageId = params.packageId;
 
   return (
     <View className="flex-1 bg-white">
@@ -87,7 +89,14 @@ const PaymentResultScreen = () => {
         <TouchableOpacity
           className="w-full p-4 rounded-xl items-center mt-8 mb-4"
           style={{ backgroundColor: "#004C98" }}
-          onPress={() => router.push("/live-tracking")}
+          onPress={() =>
+            router.push({
+              pathname: "/live-tracking",
+              params: {
+                packageId: packageId,
+              },
+            })
+          }
         >
           <Text
             style={{ fontFamily: "Inter-Bold" }}

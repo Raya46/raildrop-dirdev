@@ -1,3 +1,4 @@
+import { useLogout } from "@/hooks/useUser";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
@@ -11,6 +12,7 @@ import {
   View,
 } from "react-native";
 const Profile = () => {
+  const { mutate: logout } = useLogout();
   return (
     <SafeAreaView className="flex-1 flex flex-col bg-white justify-center">
       <View className="mx-4">
@@ -81,10 +83,13 @@ const Profile = () => {
             <Feather name="chevron-right" size={24} color={"black"} />
           </View>
           <View className="flex flex-row justify-between">
-            <View className="flex flex-row items-center gap-4">
+            <TouchableOpacity
+              onPress={() => logout()}
+              className="flex flex-row items-center gap-4"
+            >
               <SimpleLineIcons name="logout" size={24} color="black" />
               <Text>Logout</Text>
-            </View>
+            </TouchableOpacity>
             <Feather name="chevron-right" size={24} color={"black"} />
           </View>
         </View>

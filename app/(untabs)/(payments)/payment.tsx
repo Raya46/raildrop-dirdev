@@ -12,26 +12,25 @@ import {
 } from "react-native";
 import PaymentMethodOption from "../../../components/PaymentMethodOption";
 
-// PERBAIKAN: Sesuaikan 'value' agar cocok dengan ENUM di database
 const paymentMethods = [
   {
     name: "Credit Card",
-    value: "payment_gateway", // Kirim 'payment_gateway' ke backend
+    value: "payment_gateway",
     icon: "credit-card",
   },
   {
     name: "Bank Transfer",
-    value: "payment_gateway", // Kirim 'payment_gateway' ke backend
+    value: "payment_gateway",
     icon: "bank",
   },
   {
     name: "E-Wallet",
-    value: "payment_gateway", // Kirim 'payment_gateway' ke backend
+    value: "payment_gateway",
     icon: "mobile",
   },
   {
-    name: "Raildrop Balance", // Ganti nama 'Cash' agar lebih jelas
-    value: "wallet_balance", // Kirim 'wallet_balance' ke backend
+    name: "Raildrop Balance",
+    value: "wallet_balance",
     icon: "money",
   },
 ];
@@ -39,11 +38,10 @@ const paymentMethods = [
 const PaymentScreen = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
-  // PERBAIKAN: Gunakan isPending untuk status loading, ini adalah praktik terbaik
+
   const { mutate: createTransaction, isPending } = useCreateTransaction();
   const { lockerSize, pickupTime, promoCode, totalPayment, packageId } = params;
 
-  // PERBAIKAN: Simpan nama metode yang dipilih untuk UI
   const [selectedMethodName, setSelectedMethodName] = useState("");
 
   const parsedTotalPayment = parseFloat((totalPayment as string) || "0");
@@ -51,7 +49,6 @@ const PaymentScreen = () => {
   const grandTotal = parsedTotalPayment + shippingFee;
 
   const handlePayNow = () => {
-    // Validasi berdasarkan nama yang dipilih
     if (!selectedMethodName) {
       Alert.alert("Error", "Please select a payment method.");
       return;
@@ -61,7 +58,6 @@ const PaymentScreen = () => {
       return;
     }
 
-    // Cari objek metode pembayaran untuk mendapatkan 'value' yang benar untuk backend
     const selectedMethod = paymentMethods.find(
       (m) => m.name === selectedMethodName
     );
@@ -74,12 +70,12 @@ const PaymentScreen = () => {
       {
         package_id: packageId as string,
         amount: grandTotal,
-        payment_method: selectedMethod.value as any, // Kirim 'value' yang benar
+        payment_method: selectedMethod.value as any,
       },
       {
         onSuccess: (data) => {
           Alert.alert("Success", "Payment successful!");
-          // Arahkan ke halaman detail pembayaran dengan data transaksi baru
+
           router.replace({
             pathname: "/payment-detail",
             params: { transactionId: data.id, package_id: packageId },

@@ -14,7 +14,7 @@ import MapView, { Marker, Polyline } from "react-native-maps";
 const LiveTrackingScreen = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { packageId } = params;
+  const packageId = params.packageId;
 
   const origin = {
     latitude: -6.3195,
