@@ -3,9 +3,9 @@ import LockerSizeOption from "@/hooks/LockerSizeOption";
 import { useGetLockersByStation } from "@/hooks/useLocker";
 import { getUserByEmail, useCreatePackage } from "@/hooks/usePackage";
 import { FontAwesome } from "@expo/vector-icons";
-import DateTimePicker, {
-  DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
+// import DateTimePicker, {
+//   DateTimePickerEvent,
+// } from "@react-native-community/datetimepicker";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
@@ -102,17 +102,17 @@ const SendPackageScreen = () => {
     calculateTotalPayment();
   }, [selectedLockerSize, pickupTime, promoCode, calculateTotalPayment]);
 
-  const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-    if (Platform.OS === "android") {
-      setShowDatePicker(false);
-    }
-    if (event.type === "set" && selectedDate) {
-      setDate(selectedDate);
-      if (Platform.OS === "android") {
-        setPickupTime(selectedDate.toLocaleString("id-ID", { hour12: false }));
-      }
-    }
-  };
+  // const onDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+  //   if (Platform.OS === "android") {
+  //     setShowDatePicker(false);
+  //   }
+  //   if (event.type === "set" && selectedDate) {
+  //     setDate(selectedDate);
+  //     if (Platform.OS === "android") {
+  //       setPickupTime(selectedDate.toLocaleString("id-ID", { hour12: false }));
+  //     }
+  //   }
+  // };
 
   const confirmIosDate = () => {
     setPickupTime(date.toLocaleString("id-ID", { hour12: false }));
@@ -299,14 +299,14 @@ const SendPackageScreen = () => {
 
         {showDatePicker && (
           <>
-            <DateTimePicker
+            {/* <DateTimePicker
               testID="dateTimePicker"
               value={date}
               mode="datetime"
               is24Hour={true}
               display={Platform.OS === "ios" ? "spinner" : "default"}
               onChange={onDateChange}
-            />
+            /> */}
             {Platform.OS === "ios" && (
               <View className="flex-row justify-around p-2">
                 <TouchableOpacity
