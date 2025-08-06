@@ -1,10 +1,18 @@
-import { Link, router } from "expo-router";
+import { useLogin } from "@/hooks/useUser";
+import { Link } from "expo-router";
 import React, { useState } from "react";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { mutate: login, isPending } = useLogin();
   return (
     <View className="flex-1 flex flex-col mx-4 justify-center">
       <Text className="text-3xl font-bold text-center">Welcome Back</Text>
@@ -18,12 +26,21 @@ const Login = () => {
         className="p-4 rounded-md bg-[#D9E4F0] my-4"
         placeholder="Password"
       />
-      <TouchableOpacity
-        className="rounded-full w-full bg-blue-800 p-4"
-        onPress={() => router.push("/home")}
-      >
-        <Text className="text-white text-center text-xl">Login</Text>
-      </TouchableOpacity>
+      {isPending ? (
+        <ActivityIndicator />
+      ) : (
+        <TouchableOpacity
+          className="rounded-full w-full bg-blue-800 p-4"
+          onPress={() =>
+            login({
+              email: email,
+              password: password,
+            })
+          }
+        >
+          <Text className="text-white text-center text-xl">Login</Text>
+        </TouchableOpacity>
+      )}
       <View className="flex flex-row gap-1 items-center justify-center mt-4">
         <Text>Don{"t"} Have an Account?</Text>
         <Link href={"/register"} className="text-[#004C98]">
