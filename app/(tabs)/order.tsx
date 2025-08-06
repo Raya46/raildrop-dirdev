@@ -151,7 +151,7 @@ const OrderScreen = () => {
               }
               onPress={() => {
                 router.push({
-                  pathname: "/",
+                  pathname: "/live-tracking",
                   params: { packageId: pkg.id },
                 });
               }}
