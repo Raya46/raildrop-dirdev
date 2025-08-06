@@ -1,4 +1,3 @@
-import OrderCard from "@/components/OrderCard";
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -82,10 +81,6 @@ const Home = () => {
             <Text>Track</Text>
           </View>
         </View>
-        <Text>Current Order</Text>
-        <OrderCard />
-        <Text>Receive Order</Text>
-        <OrderCard />
       </View>
     </ScrollView>
   );
