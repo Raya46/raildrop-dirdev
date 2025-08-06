@@ -115,7 +115,6 @@ const PaymentScreen = () => {
         >
           Payment Details
         </Text>
-        {/* ... (Detail pembayaran tetap sama) ... */}
         <View className="flex flex-col gap-2 mb-8">
           <View className="flex flex-row items-center p-4 rounded-lg bg-gray-100 border border-gray-200">
             <Ionicons

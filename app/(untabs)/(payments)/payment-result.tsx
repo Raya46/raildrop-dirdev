@@ -108,7 +108,7 @@ const PaymentResultScreen = () => {
             Back To Home
           </Text>
         </TouchableOpacity>
-        <View className="h-20" /> {/* Spacer for bottom navigation */}
+        <View className="h-20" />
       </ScrollView>
     </View>
   );
