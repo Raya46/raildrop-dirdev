@@ -27,14 +27,14 @@ const Register = () => {
       />
       <TextInput
         onChangeText={(text) => setConfirmPassword(text)}
-        className="p-4 rounded-md bg-[#D9E4F0] mt-4"
+        className="p-4 rounded-md bg-[#D9E4F0] my-4"
         placeholder="Confirm Password"
       />
       <TouchableOpacity
-        className="rounded-full w-full bg-blue-800 p-4 mb-4"
+        className="rounded-full w-full bg-blue-800 p-4"
         onPress={() => router.push("/home")}
       >
-        <Text className="text-white text-center text-xl">Login</Text>
+        <Text className="text-white text-center text-xl">Register</Text>
       </TouchableOpacity>
       <View className="flex flex-row gap-1 items-center justify-center mt-4">
         <Text>Already Have an Account?</Text>
