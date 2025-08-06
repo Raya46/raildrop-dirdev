@@ -101,13 +101,11 @@ const ScanScreen = () => {
         style={StyleSheet.absoluteFillObject}
       />
 
-      {/* Overlay untuk memberikan fokus pada area scan */}
       <View style={styles.overlay}>
         <View style={styles.unfocusedContainer} />
         <View style={styles.middleContainer}>
           <View style={styles.unfocusedContainer} />
           <View style={styles.focusedContainer}>
-            {/* Corner overlays */}
             <View style={[styles.corner, styles.topLeft]} />
             <View style={[styles.corner, styles.topRight]} />
             <View style={[styles.corner, styles.bottomLeft]} />

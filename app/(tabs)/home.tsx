@@ -1,4 +1,3 @@
-import OrderCard from "@/components/OrderCard";
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -16,8 +15,8 @@ import {
 const Home = () => {
   const [location, setLocation] = useState("");
   return (
-    <ScrollView className="bg-white">
-      <View className="flex flex-col gap-4 mx-4">
+    <ScrollView showsVerticalScrollIndicator={false} className="bg-white">
+      <View className="flex flex-col gap-4 mx-4 mt-6">
         <View className="flex flex-row items-center justify-between">
           <View className="flex flex-row items-center gap-4">
             <Image
@@ -82,10 +81,6 @@ const Home = () => {
             <Text>Track</Text>
           </View>
         </View>
-        <Text>Current Order</Text>
-        <OrderCard />
-        <Text>Receive Order</Text>
-        <OrderCard />
       </View>
     </ScrollView>
   );
