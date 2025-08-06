@@ -26,7 +26,12 @@ const Order = () => {
           <Text className="bg-[#B0C8DF] rounded-full px-3 py-1">2</Text>
         </View>
       </View>
-      <ScrollView className="mx-4 mt-4">
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        className="mx-4 mt-4 mb-28"
+      >
+        <OrderCard />
+        <OrderCard />
         <OrderCard />
         <OrderCard />
         <OrderCard />

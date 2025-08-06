@@ -16,8 +16,8 @@ import {
 const Home = () => {
   const [location, setLocation] = useState("");
   return (
-    <ScrollView className="bg-white">
-      <View className="flex flex-col gap-4 mx-4">
+    <ScrollView showsVerticalScrollIndicator={false} className="bg-white">
+      <View className="flex flex-col gap-4 mx-4 mt-6">
         <View className="flex flex-row items-center justify-between">
           <View className="flex flex-row items-center gap-4">
             <Image

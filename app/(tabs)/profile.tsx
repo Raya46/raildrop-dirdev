@@ -26,7 +26,7 @@ const Profile = () => {
             </View>
           </View>
           <TouchableOpacity
-            onPress={() => router.push("/notifications")}
+            onPress={() => router.push("/edit-profile")}
             className="rounded-full bg-[#D9E4F0] p-2"
           >
             <Feather name="edit-3" color={"#003D7A"} size={24} />
