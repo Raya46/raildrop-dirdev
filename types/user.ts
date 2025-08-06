@@ -9,4 +9,5 @@ export type User = {
     updated_at?:string;
     password?:string;
     profile_picture?:string;
+    pin?:string;
 }
