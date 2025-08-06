@@ -32,7 +32,7 @@ const Register = () => {
       />
       <TouchableOpacity
         className="rounded-full w-full bg-blue-800 p-4"
-        onPress={() => router.push("/home")}
+        onPress={() => router.push("/(onboarding)/step1")}
       >
         <Text className="text-white text-center text-xl">Register</Text>
       </TouchableOpacity>
