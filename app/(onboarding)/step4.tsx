@@ -5,10 +5,10 @@ import { Image, Text, TouchableOpacity, View } from "react-native";
 const step4 = () => {
   return (
     <View className="flex-1 flex-col justify-between">
-      <View className=" flex-1 flex-col justify-center">
+      <View className=" flex flex-col justify-center">
         <Image
           source={require("@/assets/images/onboarding-success.png")}
-          className="w-[300px] h-[300px] mr-[-10px]"
+          className="w-[300px] h-[300px] mx-10px"
         />
         <View className="mx-auto">
           <Text className="text-center text-semibold text-xl">

@@ -1,7 +1,8 @@
-import LocationCard from "@/components/LocationCard";
+import MRTStationCard from "@/components/MRTStationCard";
 import { useGetLockersWithStations } from "@/hooks/useLocker";
 import { Station } from "@/types/station";
 import { FontAwesome } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -132,7 +133,20 @@ const MapScreen = () => {
           style={{ maxHeight: 280 }}
         >
           {filteredStations.length > 0 ? (
-            filteredStations.map((station) => <LocationCard key={station.id} />)
+            filteredStations.map((station) => (
+              <MRTStationCard
+                key={station.id}
+                stationName={station.name}
+                distance={station.address}
+                availableLockers={station.availableLockers}
+                onPress={() =>
+                  router.push({
+                    pathname: "/send-package",
+                    params: { destination_station_id: station.id },
+                  })
+                }
+              />
+            ))
           ) : (
             <Text className="text-center text-gray-500 mt-4">
               No stations found.
