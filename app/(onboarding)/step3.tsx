@@ -1,10 +1,10 @@
-import { PinInput, PinInputRef } from "@pakenfit/react-native-pin-input";
+import PinInput from "@/components/PinInput";
 import { router } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
 const Step3 = () => {
-  const ref = React.useRef<PinInputRef>(null);
+  const [pin, setPin] = useState("");
 
   return (
     <View className="flex-1 flex flex-col justify-center mx-4">
@@ -15,12 +15,7 @@ const Step3 = () => {
         />
       </View>
       <Text>Enter your PIN</Text>
-      <PinInput
-        length={6}
-        onFillEnded={(otp) => console.log(otp)}
-        autoFocus
-        ref={ref}
-      />
+      <PinInput maxLength={6} pin={pin} setPin={setPin} />
 
       <TouchableOpacity
         className="rounded-full w-full bg-blue-800 p-4 mt-4"

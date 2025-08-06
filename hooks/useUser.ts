@@ -123,8 +123,8 @@ export const useRegister = () => {
     };
 };
 
-export const useLogout = () =>
-    useMutation({
+export const useLogout = () => {
+return useMutation({
         mutationFn: async () => {
             await supabase.auth.signOut();
             await AsyncStorage.removeItem("token");
@@ -138,6 +138,8 @@ export const useLogout = () =>
             router.replace("/");
         },
     });
+}
+    
 
     export const useCheckSession = () => {
     const checkSession = async (): Promise<boolean> => {

@@ -1,3 +1,4 @@
+import ActionButtons from "@/components/ActionsButtons";
 import { useAuth } from "@/context/AuthContext";
 import { useGetLockersWithStations } from "@/hooks/useLocker";
 import { useGetReceivedPackages } from "@/hooks/usePackage";
@@ -48,10 +49,10 @@ const HomeScreen = () => {
   }, []);
 
   const initialRegion = {
-    latitude: location?.latitude ?? -6.2088,
-    longitude: location?.longitude ?? 106.8456,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
+    latitude: -6.2,
+    longitude: 106.8167,
+    latitudeDelta: 0.1,
+    longitudeDelta: 0.1,
   };
 
   return (
@@ -59,11 +60,7 @@ const HomeScreen = () => {
       <View className="flex-row items-center justify-between px-4 pt-10 pb-4 bg-white">
         <View className="flex-row items-center">
           <Image
-            source={{
-              uri:
-                userData?.profile_picture ||
-                "https://example.com/default_avatar.png",
-            }}
+            source={require("@/assets/images/profile-mock.png")}
             className="w-8 h-8 rounded-full mr-2"
           />
           <Text
@@ -131,7 +128,7 @@ const HomeScreen = () => {
           style={{ backgroundColor: "#004C98" }}
         >
           <MapView
-            className="w-full h-48"
+            style={{ width: "100%", height: "200", padding: 8 }}
             initialRegion={initialRegion}
             showsUserLocation={false}
           >
@@ -172,6 +169,8 @@ const HomeScreen = () => {
             </View>
           </View>
         </View>
+
+        <ActionButtons />
 
         <Text
           style={{ fontFamily: "Inter-Bold" }}

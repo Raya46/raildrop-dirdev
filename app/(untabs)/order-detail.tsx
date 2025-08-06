@@ -1,12 +1,12 @@
 import React from "react";
 import { Text, View } from "react-native";
 
-const TopUp = () => {
+const OrderDetail = () => {
   return (
     <View>
-      <Text>TopUp</Text>
+      <Text>OrderDetail</Text>
     </View>
   );
 };
 
-export default TopUp;
+export default OrderDetail;
