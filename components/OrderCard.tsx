@@ -6,7 +6,7 @@ import { Image, Text, TouchableOpacity, View } from "react-native";
 
 const OrderCard = () => {
   return (
-    <View className="flex flex-col bg-[#D9E4F0] border border-[#B0C8DF] p-3 rounded-lg">
+    <View className="flex flex-col bg-[#D9E4F0] border border-[#B0C8DF] p-3 rounded-lg mb-4">
       <View className="flex flex-row items-center justify-between">
         <View className="flex flex-row items-center gap-2">
           <Image
