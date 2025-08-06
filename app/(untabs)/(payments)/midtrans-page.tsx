@@ -1,3 +1,4 @@
+import { useAuth } from "@/context/AuthContext";
 import { useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -12,6 +13,8 @@ const MIDTRANS_CLIENT_KEY =
   process.env.EXPO_MIDTRANS_CLIENT_KEY || "SB-Mid-client-6nVp9w_Xc4Ghak7I";
 
 const MidtransPage = () => {
+  const { userData } = useAuth();
+
   const [snapToken, setSnapToken] = useState("");
   const [loading, setLoading] = useState(false);
   const webviewRef = useRef(null);
@@ -25,9 +28,9 @@ const MidtransPage = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: "raya",
-            email: "raya@gmail.com",
-            phone: "85776214950",
+            name: userData?.full_name,
+            email: userData?.email,
+            phone: userData?.phone_number,
             grossAmount: 50000,
           }),
         }

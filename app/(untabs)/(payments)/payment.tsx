@@ -1,106 +1,103 @@
-import { useAuth } from "@/context/AuthContext";
-import {
-  useGetTransactionById,
-  useUpdateTransactionStatus,
-} from "@/hooks/useTransaction";
-
-import { useUpdatePackage } from "@/hooks/usePackage";
-import {
-  useGetUserById,
-  useUpdateUserBalance,
-  useUpdateUserPin,
-} from "@/hooks/useUser";
-import { FontAwesome } from "@expo/vector-icons";
+import { useCreateTransaction } from "@/hooks/useTransaction";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Modal,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import PinInput from "../../../components/PinInput";
+import PaymentMethodOption from "../../../components/PaymentMethodOption";
 
-const PaymentDetailScreen = () => {
+// PERBAIKAN: Sesuaikan 'value' agar cocok dengan ENUM di database
+const paymentMethods = [
+  {
+    name: "Credit Card",
+    value: "payment_gateway", // Kirim 'payment_gateway' ke backend
+    icon: "credit-card",
+  },
+  {
+    name: "Bank Transfer",
+    value: "payment_gateway", // Kirim 'payment_gateway' ke backend
+    icon: "bank",
+  },
+  {
+    name: "E-Wallet",
+    value: "payment_gateway", // Kirim 'payment_gateway' ke backend
+    icon: "mobile",
+  },
+  {
+    name: "Raildrop Balance", // Ganti nama 'Cash' agar lebih jelas
+    value: "wallet_balance", // Kirim 'wallet_balance' ke backend
+    icon: "money",
+  },
+];
+
+const PaymentScreen = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { transactionId } = params;
+  // PERBAIKAN: Gunakan isPending untuk status loading, ini adalah praktik terbaik
+  const { mutate: createTransaction, isPending } = useCreateTransaction();
+  const { lockerSize, pickupTime, promoCode, totalPayment, packageId } = params;
 
-  const [pin, setPin] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
+  // PERBAIKAN: Simpan nama metode yang dipilih untuk UI
+  const [selectedMethodName, setSelectedMethodName] = useState("");
 
-  const [isPinSetupModalVisible, setPinSetupModalVisible] = useState(false);
-  const [newPin, setNewPin] = useState("");
-  const [confirmNewPin, setConfirmNewPin] = useState("");
+  const parsedTotalPayment = parseFloat((totalPayment as string) || "0");
+  const shippingFee = 10000;
+  const grandTotal = parsedTotalPayment + shippingFee;
 
-  const { userData } = useAuth();
-  const { data: userBalanceData, isLoading: isLoadingUserBalance } =
-    useGetUserById(userData?.id || "");
-  const { data: transactionData, isLoading: isLoadingTransaction } =
-    useGetTransactionById(transactionId as string);
-
-  const { mutateAsync: updateTransactionStatus } = useUpdateTransactionStatus();
-  const { mutateAsync: updateUserBalance } = useUpdateUserBalance();
-  const { mutateAsync: updatePackageStatus } = useUpdatePackage();
-  const { mutateAsync: updateUserPin, isPending: isUpdatingPin } =
-    useUpdateUserPin();
-
-  useEffect(() => {
-    if (userData && userData.pin === null) {
-      setPinSetupModalVisible(true);
+  const handlePayNow = () => {
+    // Validasi berdasarkan nama yang dipilih
+    if (!selectedMethodName) {
+      Alert.alert("Error", "Please select a payment method.");
+      return;
     }
-  }, [userData]);
-
-  const handleKeyPress = (key: string) => {
-    if (key === "backspace") {
-      setPin((prev) => prev.slice(0, -1));
-    } else if (pin.length < 6) {
-      setPin((prev) => prev + key);
+    if (!packageId) {
+      Alert.alert("Error", "Package ID not found.");
+      return;
     }
+
+    // Cari objek metode pembayaran untuk mendapatkan 'value' yang benar untuk backend
+    const selectedMethod = paymentMethods.find(
+      (m) => m.name === selectedMethodName
+    );
+    if (!selectedMethod) {
+      Alert.alert("Error", "Invalid payment method selected.");
+      return;
+    }
+
+    createTransaction(
+      {
+        package_id: packageId as string,
+        amount: grandTotal,
+        payment_method: selectedMethod.value as any, // Kirim 'value' yang benar
+      },
+      {
+        onSuccess: (data) => {
+          Alert.alert("Success", "Payment successful!");
+          // Arahkan ke halaman detail pembayaran dengan data transaksi baru
+          router.replace({
+            pathname: "/payment-detail",
+            params: { transactionId: data.id, package_id: packageId },
+          });
+        },
+        onError: (err: any) => {
+          Alert.alert("Payment Failed", err.message);
+        },
+      }
+    );
   };
-
-  const handleSavePin = async () => {
-    if (newPin.length !== 6) {
-      Alert.alert("Invalid PIN", "PIN must be 6 digits.");
-      return;
-    }
-    if (newPin !== confirmNewPin) {
-      Alert.alert("PIN Mismatch", "The PINs you entered do not match.");
-      return;
-    }
-    if (!userData?.id) return;
-
-    try {
-      await updateUserPin({ userId: userData.id, pin: parseInt(newPin) });
-      Alert.alert("Success", "Your PIN has been set successfully.");
-      setPinSetupModalVisible(false);
-    } catch (error: any) {
-      Alert.alert("Error", `Failed to set PIN: ${error.message}`);
-    }
-  };
-
-  const handlePayment = async () => {
-    if (pin.length !== 6) {
-      Alert.alert("Error", "Please enter your 6-digit PIN.");
-      return;
-    }
-    if (parseInt(userData?.pin as string) !== parseInt(pin)) {
-      Alert.alert("Error", "Incorrect PIN.");
-      return;
-    }
-  };
-
-  const isLoading = isLoadingUserBalance || isLoadingTransaction;
 
   return (
     <View className="flex-1 bg-white">
       <Stack.Screen
         options={{
           headerShown: true,
-          headerTitle: "Payment Detail",
+          headerTitle: "Payment",
           headerTitleAlign: "center",
           headerStyle: { backgroundColor: "#004C98" },
           headerTintColor: "white",
@@ -111,192 +108,163 @@ const PaymentDetailScreen = () => {
           ),
         }}
       />
-      <ScrollView className="p-4">
-        {/* Tampilan Saldo */}
-        <View
-          className="rounded-xl p-4 my-4 flex-row items-center justify-between"
-          style={{ backgroundColor: "#E6EDF5" }}
+      <ScrollView showsVerticalScrollIndicator={false} className="p-4">
+        <Text
+          style={{ fontFamily: "Inter-Bold" }}
+          className="text-xl font-bold mb-4"
         >
-          <View className="flex-row items-center">
-            <FontAwesome
-              name="credit-card"
-              size={24}
+          Payment Details
+        </Text>
+        {/* ... (Detail pembayaran tetap sama) ... */}
+        <View className="flex flex-col gap-2 mb-8">
+          <View className="flex flex-row items-center p-4 rounded-lg bg-gray-100 border border-gray-200">
+            <Ionicons
+              name="cube-outline"
               color={"#004C98"}
+              size={20}
               className="mr-3"
             />
-            <View>
+            <Text
+              style={{ fontFamily: "Inter-Regular" }}
+              className="text-gray-600"
+            >
+              Locker Size:{" "}
+            </Text>
+            <Text
+              style={{ fontFamily: "Inter-Bold" }}
+              className="text-gray-900"
+            >
+              {lockerSize}
+            </Text>
+          </View>
+          <View className="flex flex-row items-center p-4 rounded-lg bg-gray-100 border border-gray-200">
+            <Ionicons
+              name="time-outline"
+              color={"#004C98"}
+              size={20}
+              className="mr-3"
+            />
+            <Text
+              style={{ fontFamily: "Inter-Regular" }}
+              className="text-gray-600"
+            >
+              Pickup Time:{" "}
+            </Text>
+            <Text
+              style={{ fontFamily: "Inter-Bold" }}
+              className="text-gray-900"
+            >
+              {pickupTime}
+            </Text>
+          </View>
+          {promoCode && (
+            <View className="flex flex-row items-center p-4 rounded-lg bg-gray-100 border border-gray-200">
+              <Ionicons
+                name="pricetag-outline"
+                color={"#004C98"}
+                size={20}
+                className="mr-3"
+              />
               <Text
                 style={{ fontFamily: "Inter-Regular" }}
                 className="text-gray-600"
               >
-                Active Balance
+                Promo Code:{" "}
               </Text>
               <Text
-                style={{ fontFamily: "Inter-Bold", color: "#004C98" }}
-                className="text-xl font-bold"
+                style={{ fontFamily: "Inter-Bold" }}
+                className="text-gray-900"
               >
-                {isLoadingUserBalance
-                  ? "Loading..."
-                  : `Rp${
-                      userBalanceData?.balance?.toLocaleString("id-ID") || "0"
-                    }`}
+                {promoCode}
               </Text>
             </View>
-          </View>
-          <TouchableOpacity
-            className="px-4 py-2 rounded-full"
-            style={{ backgroundColor: "#004C98" }}
-            onPress={() => router.push("/topup")}
-          >
-            <Text style={{ fontFamily: "Inter-Bold" }} className="text-white">
-              Top Up +
-            </Text>
-          </TouchableOpacity>
+          )}
         </View>
 
-        {/* Total Pembayaran */}
-        <Text
-          style={{ fontFamily: "Inter-Regular" }}
-          className="text-gray-700 text-lg mt-4"
-        >
-          Total Payment
-        </Text>
         <Text
           style={{ fontFamily: "Inter-Bold" }}
-          className="text-4xl font-bold mb-8"
+          className="text-xl font-bold mb-4"
         >
-          {isLoading
-            ? "Loading..."
-            : `Rp${transactionData?.amount?.toLocaleString("id-ID") || "0"}`}
+          Summary
         </Text>
-
-        {/* Input PIN */}
-        <View className="mb-8 bg-gray-100 rounded-lg p-4">
-          <Text
-            style={{ fontFamily: "Inter-Regular" }}
-            className="text-gray-600 mb-2 text-center"
-          >
-            Input your 6 Digit PIN
-          </Text>
-          <PinInput pin={pin} setPin={setPin} maxLength={6} />
-        </View>
-
-        {/* Keypad */}
-        <View className="flex-row flex-wrap justify-around">
-          {[
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8",
-            "9",
-            ",",
-            "0",
-            "backspace",
-          ].map((key) => (
-            <TouchableOpacity
-              key={key}
-              className="w-1/3 items-center justify-center py-4"
-              onPress={() => handleKeyPress(key)}
-            >
-              {key === "backspace" ? (
-                <FontAwesome name="long-arrow-left" size={28} color="black" />
-              ) : (
-                <Text
-                  style={{ fontFamily: "Inter-Regular" }}
-                  className="text-3xl"
-                >
-                  {key}
-                </Text>
-              )}
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Tombol Bayar */}
-        <TouchableOpacity
-          className="w-full p-4 rounded-xl items-center mt-8 flex-row justify-center"
-          style={{
-            backgroundColor: "#004C98",
-            opacity: isProcessing || isLoading ? 0.5 : 1,
-          }}
-          onPress={handlePayment}
-          disabled={isProcessing || isLoading}
+        <View
+          className="rounded-xl p-4 mb-6"
+          style={{ backgroundColor: "#E6EDF5" }}
         >
-          {isProcessing && (
+          <View className="flex-row justify-between mb-2">
+            <Text
+              style={{ fontFamily: "Inter-Regular" }}
+              className="text-gray-700"
+            >
+              Base Payment:
+            </Text>
+            <Text style={{ fontFamily: "Inter-Bold" }} className="text-base">
+              Rp{parsedTotalPayment.toLocaleString("id-ID")}
+            </Text>
+          </View>
+          <View className="flex-row justify-between">
+            <Text
+              style={{ fontFamily: "Inter-Regular" }}
+              className="text-gray-700"
+            >
+              Shipping Fee:
+            </Text>
+            <Text style={{ fontFamily: "Inter-Bold" }} className="text-base">
+              Rp{shippingFee.toLocaleString("id-ID")}
+            </Text>
+          </View>
+          <View className="border-t border-gray-300 my-3" />
+          <View className="flex-row justify-between">
+            <Text style={{ fontFamily: "Inter-Bold" }} className="text-lg">
+              Grand Total:
+            </Text>
+            <Text
+              style={{ fontFamily: "Inter-Bold", color: "#004C98" }}
+              className="text-xl"
+            >
+              Rp{grandTotal.toLocaleString("id-ID")}
+            </Text>
+          </View>
+        </View>
+
+        <Text
+          style={{ fontFamily: "Inter-Bold" }}
+          className="text-xl font-bold mb-4"
+        >
+          Payment Method
+        </Text>
+        {paymentMethods.map((method, index) => (
+          <PaymentMethodOption
+            key={index}
+            methodName={method.name}
+            fontAwesomeIcon={method.icon}
+            isSelected={selectedMethodName === method.name}
+            onPress={() => setSelectedMethodName(method.name)}
+          />
+        ))}
+
+        <TouchableOpacity
+          className={`w-full p-4 rounded-xl items-center my-6 flex-row justify-center ${
+            isPending ? "opacity-50" : ""
+          }`}
+          style={{ backgroundColor: "#004C98" }}
+          onPress={handlePayNow}
+          disabled={isPending}
+        >
+          {isPending && (
             <ActivityIndicator size="small" color="white" className="mr-2" />
           )}
           <Text
             style={{ fontFamily: "Inter-Bold" }}
             className="text-white text-lg"
           >
-            {isProcessing ? "Processing..." : "Pay"}
+            {isPending ? "Processing..." : "Pay Now"}
           </Text>
         </TouchableOpacity>
+        <View className="h-10" />
       </ScrollView>
-
-      {/* Modal untuk Setup PIN */}
-      <Modal
-        visible={isPinSetupModalVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => {}}
-      >
-        <View className="flex-1 justify-center items-center bg-black/60 p-5">
-          <View className="bg-white rounded-2xl p-6 w-full">
-            <Text
-              style={{ fontFamily: "Inter-Bold" }}
-              className="text-xl text-center mb-2"
-            >
-              Setup Your Security PIN
-            </Text>
-            <Text
-              style={{ fontFamily: "Inter-Regular" }}
-              className="text-gray-600 text-center mb-6"
-            >
-              You need to set a 6-digit PIN before you can make a payment.
-            </Text>
-            <Text className="text-gray-500 mb-1 ml-1">Enter New PIN</Text>
-            <PinInput pin={newPin} setPin={setNewPin} maxLength={6} />
-            <Text className="text-gray-500 mb-1 ml-1 mt-4">
-              Confirm New PIN
-            </Text>
-            <PinInput
-              pin={confirmNewPin}
-              setPin={setConfirmNewPin}
-              maxLength={6}
-            />
-            <TouchableOpacity
-              className="w-full p-4 rounded-xl items-center mt-8 flex-row justify-center"
-              style={{
-                backgroundColor: "#004C98",
-                opacity: isUpdatingPin ? 0.5 : 1,
-              }}
-              onPress={handleSavePin}
-              disabled={isUpdatingPin}
-            >
-              {isUpdatingPin && (
-                <ActivityIndicator
-                  size="small"
-                  color="white"
-                  className="mr-2"
-                />
-              )}
-              <Text
-                style={{ fontFamily: "Inter-Bold" }}
-                className="text-white text-lg"
-              >
-                {isUpdatingPin ? "Saving..." : "Save PIN"}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };
 
-export default PaymentDetailScreen;
+export default PaymentScreen;
