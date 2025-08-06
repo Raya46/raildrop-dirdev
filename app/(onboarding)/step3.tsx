@@ -2,8 +2,7 @@ import { router } from "expo-router";
 import React, { useState } from "react";
 import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
 
-const Step1 = () => {
-  const [phone, setPhone] = useState("");
+const Step3 = () => {
   return (
     <View className="flex-1 flex flex-col justify-center mx-4">
         <View className="flex justify-center ml-8">
@@ -12,17 +11,12 @@ const Step1 = () => {
                 className="w-[300px] h-[300px]"
             />
         </View>
-        <Text className="text-3xl font-bold text-left mt-4">
-            Enter Your Phone Number:{" "}
-        </Text>
-        <TextInput
-            onChangeText={(text) => setPhone(text)}
-            className="p-4 rounded-md bg-[#D9E4F0] mt-4"
-            placeholder="Phone Number"
-        />
+        
+
+
         <TouchableOpacity
             className="rounded-full w-full bg-blue-800 p-4 mt-4"
-            onPress={() => router.push("/(onboarding)/step2")}
+            onPress={() => router.push("/(onboarding)/step4")}
         >
             <Text className="text-white text-center text-semibold text-xl">
             Submit
@@ -32,4 +26,4 @@ const Step1 = () => {
   );
 };
 
-export default Step1;
+export default Step3;
