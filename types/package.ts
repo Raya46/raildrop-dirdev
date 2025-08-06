@@ -1,3 +1,5 @@
+import { User } from "./user";
+
 export type Package = {
     id?:string;
     sender_id:string;
@@ -10,4 +12,5 @@ export type Package = {
     created_at?:string;
     completed_at?:string;
     receiver_id:string;
+    sender: User
 }
