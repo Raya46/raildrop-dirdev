@@ -128,7 +128,7 @@ const HomeScreen = () => {
           style={{ backgroundColor: "#004C98" }}
         >
           <MapView
-            style={{ width: "100%", height: "48" }}
+            style={{ width: "100%", height: "200", padding: 8 }}
             initialRegion={initialRegion}
             showsUserLocation={false}
           >

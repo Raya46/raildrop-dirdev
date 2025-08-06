@@ -7,8 +7,9 @@ import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Platform,
   ScrollView,
@@ -18,30 +19,27 @@ import {
   View,
 } from "react-native";
 
-const lockers = [
-  {
-    id: "be8b7d60-4f5a-43b4-8944-1f782920aa53",
+const lockerDetailsMap = {
+  small: {
     size: "Small",
     dimensions: "30 cm x 30 cm x 30 cm",
     description: "Fits small packages (e.g., documents, small electronics).",
     iconName: "envelope" as const,
   },
-  {
-    id: "0dffeb64-2603-400f-aed3-a8c303b7b1cc",
+  medium: {
     size: "Medium",
     dimensions: "50 cm x 50 cm x 50 cm.",
     description: "Ideal for medium packages (e.g., shoebox, small parcels).",
     iconName: "archive" as const,
   },
-  {
-    id: "637eb667-d8d9-4556-9c13-e51eaa4575ea",
+  large: {
     size: "Large",
     dimensions: "70 cm x 70 cm x 70 cm",
     description:
       "Suitable for larger packages (e.g., bulky items, larger boxes).",
     iconName: "dropbox" as const,
   },
-];
+};
 
 const SendPackageScreen = () => {
   const params = useLocalSearchParams();
@@ -49,7 +47,6 @@ const SendPackageScreen = () => {
   const { userData } = useAuth();
 
   const [selectedLockerSize, setSelectedLockerSize] = useState("");
-  const [selectedLockerId, setselectedLockerId] = useState("");
   const [pickupTime, setPickupTime] = useState("");
   const [promoCode, setPromoCode] = useState("");
   const [totalPayment, setTotalPayment] = useState(0);
@@ -59,12 +56,22 @@ const SendPackageScreen = () => {
   const [description, setDescription] = useState("");
 
   const destinationStationId = params.destination_station_id as string;
-  console.log(destinationStationId);
 
   const { data: lockersAtStation, isLoading: isLoadingLockers } =
     useGetLockersByStation(destinationStationId);
 
   const createPackageMutation = useCreatePackage();
+
+  const availableLockers = useMemo(() => {
+    if (!lockersAtStation) return [];
+    return lockersAtStation.filter((locker) => locker.status === "available");
+  }, [lockersAtStation]);
+
+  const availableSizes = useMemo(() => {
+    if (!availableLockers) return [];
+    const sizes = new Set(availableLockers.map((locker) => locker.size));
+    return Array.from(sizes);
+  }, [availableLockers]);
 
   const calculateTotalPayment = React.useCallback(() => {
     let basePrice = 0;
@@ -113,10 +120,19 @@ const SendPackageScreen = () => {
   };
 
   const handleConfirmPayment = async () => {
-    console.log("Tes");
-
     if (!selectedLockerSize) {
       Alert.alert("Error", "Please select a locker size.");
+      return;
+    }
+
+    const selectedLocker = availableLockers?.find(
+      (l) => l.size === selectedLockerSize
+    );
+    if (!selectedLocker) {
+      Alert.alert(
+        "Error",
+        "Selected locker size is no longer available. Please choose another size."
+      );
       return;
     }
 
@@ -130,9 +146,9 @@ const SendPackageScreen = () => {
       const newPackage = await createPackageMutation.mutateAsync({
         destination_station_id: destinationStationId,
         description: description,
-        size: selectedLockerSize.toLowerCase() as any,
+        size: selectedLockerSize as any,
         receiver_id: receiver.id,
-        locker_id: selectedLockerId as string,
+        locker_id: selectedLocker.id as string,
       });
 
       router.push({
@@ -228,21 +244,30 @@ const SendPackageScreen = () => {
         >
           Select Locker Size
         </Text>
-
-        {lockers.map((item, index) => (
-          <LockerSizeOption
-            key={index}
-            iconName={item.iconName}
-            size={item.size}
-            dimensions={item.dimensions}
-            description={item.description}
-            isSelected={selectedLockerSize === item.size}
-            onPress={() => {
-              setSelectedLockerSize(item.size);
-              setselectedLockerId(item.id);
-            }}
-          />
-        ))}
+        {isLoadingLockers ? (
+          <ActivityIndicator size="large" color={"#004C98"} />
+        ) : availableSizes.length > 0 ? (
+          availableSizes.map((sizeKey) => {
+            const details =
+              lockerDetailsMap[sizeKey as keyof typeof lockerDetailsMap];
+            if (!details) return null;
+            return (
+              <LockerSizeOption
+                key={sizeKey}
+                iconName={details.iconName}
+                size={details.size}
+                dimensions={details.dimensions}
+                description={details.description}
+                isSelected={selectedLockerSize === sizeKey}
+                onPress={() => setSelectedLockerSize(sizeKey)}
+              />
+            );
+          })
+        ) : (
+          <Text className="text-center text-gray-500 my-4">
+            No available lockers at this station.
+          </Text>
+        )}
 
         <Text
           style={{ fontFamily: "Inter-Bold" }}
