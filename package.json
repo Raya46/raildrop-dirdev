@@ -13,8 +13,10 @@
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.1",
     "@expo/vector-icons": "^14.1.0",
+    "@gorhom/bottom-sheet": "^5.1.8",
     "@pakenfit/react-native-pin-input": "^1.4.1",
     "@react-native-async-storage/async-storage": "2.1.2",
+    "@react-native-community/datetimepicker": "8.4.1",
     "@react-navigation/bottom-tabs": "^7.3.10",
     "@react-navigation/elements": "^2.3.8",
     "@react-navigation/native": "^7.1.6",
@@ -55,8 +57,7 @@
     "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
-    "tailwindcss": "^3.4.17",
-    "@react-native-community/datetimepicker": "8.4.1"
+    "tailwindcss": "^3.4.17"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

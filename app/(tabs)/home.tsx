@@ -1,3 +1,4 @@
+import ActionButtons from "@/components/ActionsButtons";
 import { useAuth } from "@/context/AuthContext";
 import { useGetLockersWithStations } from "@/hooks/useLocker";
 import { useGetReceivedPackages } from "@/hooks/usePackage";
@@ -168,6 +169,8 @@ const HomeScreen = () => {
             </View>
           </View>
         </View>
+
+        <ActionButtons />
 
         <Text
           style={{ fontFamily: "Inter-Bold" }}

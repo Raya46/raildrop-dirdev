@@ -183,7 +183,6 @@ const SendPackageScreen = () => {
         }}
       />
       <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
-        {/* Detail Pengirim dan Penerima */}
         <Text
           style={{ fontFamily: "Inter-Bold" }}
           className="text-lg font-bold mb-3"
@@ -270,7 +269,6 @@ const SendPackageScreen = () => {
           </Text>
         )}
 
-        {/* Sisa Form */}
         <Text
           style={{ fontFamily: "Inter-Bold" }}
           className="text-lg font-bold mb-3 mt-4"
