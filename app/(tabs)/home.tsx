@@ -1,10 +1,12 @@
-import Feather from "@expo/vector-icons/Feather";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useAuth } from "@/context/AuthContext";
+import { useGetLockersWithStations } from "@/hooks/useLocker";
+import { useGetReceivedPackages } from "@/hooks/usePackage";
+import { FontAwesome } from "@expo/vector-icons";
+import * as Location from "expo-location";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  FlatList,
   Image,
   ScrollView,
   Text,
@@ -12,78 +14,214 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-const Home = () => {
-  const [location, setLocation] = useState("");
+import MapView, { Marker } from "react-native-maps";
+import OrderCard from "../../components/OrderCard";
+
+const HomeScreen = () => {
+  const { userData } = useAuth();
+  const { data: receivedPackages, isLoading: isLoadingReceivedPackages } =
+    useGetReceivedPackages();
+  const { data: lockersWithStations } = useGetLockersWithStations();
+
+  const [location, setLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          console.error("Permission to access location was denied");
+          return;
+        }
+        let loc = await Location.getCurrentPositionAsync({});
+        setLocation({
+          latitude: loc.coords.latitude,
+          longitude: loc.coords.longitude,
+        });
+      } catch (error) {
+        console.error("Error getting location", error);
+      }
+    })();
+  }, []);
+
+  const initialRegion = {
+    latitude: location?.latitude ?? -6.2088,
+    longitude: location?.longitude ?? 106.8456,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  };
+
   return (
-    <ScrollView showsVerticalScrollIndicator={false} className="bg-white">
-      <View className="flex flex-col gap-4 mx-4 mt-6">
-        <View className="flex flex-row items-center justify-between">
-          <View className="flex flex-row items-center gap-4">
-            <Image
-              source={require("@/assets/images/profile-mock.png")}
-              className="w-[34px] h-[34px]"
-            />
-            <Text>Good Morning, Indy</Text>
-          </View>
-          <TouchableOpacity
-            onPress={() => router.push("/notifications")}
-            className="rounded-full bg-[#D9E4F0] p-2"
+    <View className="flex-1 bg-white">
+      <View className="flex-row items-center justify-between px-4 pt-10 pb-4 bg-white">
+        <View className="flex-row items-center">
+          <Image
+            source={{
+              uri:
+                userData?.profile_picture ||
+                "https://example.com/default_avatar.png",
+            }}
+            className="w-8 h-8 rounded-full mr-2"
+          />
+          <Text
+            style={{ fontFamily: "Inter-Bold", fontSize: 14 }}
+            className="text-sm text-gray-800"
           >
-            <Feather name="bell" color={"#003D7A"} size={24} />
-          </TouchableOpacity>
+            {userData
+              ? `Good Morning, ${userData.full_name?.split(" ")[0]}`
+              : "Good Morning"}
+          </Text>
         </View>
-        <View className="flex flex-row items-center justify-between rounded-md border border-[#B0C8DF] p-3 bg-[#D9E4F0]">
-          <View className="flex flex-row items-center gap-6">
-            <Ionicons name="wallet" color={"#003D7A"} size={24} />
-            <View className="flex flex-col">
-              <Text>Active Balance</Text>
-              <Text>Rp 150.000</Text>
+        <TouchableOpacity
+          onPress={() => router.push("/notifications")}
+          className="w-8 h-8 rounded-full items-center justify-center border border-gray-200"
+        >
+          <FontAwesome name="bell" size={18} color={"#004C98"} />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 40 }}
+      >
+        <View
+          className="bg-white rounded-xl p-4 mx-4 my-4 flex-row items-center justify-between"
+          style={{ backgroundColor: "#D9E4F0" }}
+        >
+          <View className="flex-row items-center">
+            <FontAwesome
+              name="credit-card"
+              size={24}
+              color={"#004C98"}
+              style={{ marginRight: 12 }}
+            />
+            <View>
+              <Text
+                style={{ fontFamily: "Inter-Regular" }}
+                className="text-xs text-gray-600 mb-1"
+              >
+                Active Balance
+              </Text>
+              <Text
+                style={{ fontFamily: "Inter-Bold", color: "#004C98" }}
+                className="text-lg"
+              >
+                {userData?.balance != null
+                  ? `Rp${userData.balance.toLocaleString("id-ID")}`
+                  : "Rp0"}
+              </Text>
             </View>
           </View>
           <TouchableOpacity
-            className="flex flex-row rounded-md bg-[#003972] px-4 py-2 items-center justify-between"
             onPress={() => router.push("/topup")}
+            className="px-4 py-2 rounded-full"
+            style={{ backgroundColor: "#004C98" }}
           >
-            <Text className="text-white">Top Up</Text>
-            <Feather name="plus" color={"#fff"} size={18} className="ml-2" />
+            <Text style={{ fontFamily: "Inter-Bold" }} className="text-white">
+              Top Up +
+            </Text>
           </TouchableOpacity>
         </View>
-        <View className="flex flex-col rounded-md bg-[#004C98] p-4">
-          {/* map placeholder */}
-          <View className="bg-gray-300 rounded-md py-16"></View>
-          <TextInput
-            onChangeText={(text) => setLocation(text)}
-            className="p-4 rounded-md bg-white mt-6"
-            placeholder="Search location or town name"
-          />
-        </View>
-        <View className="flex flex-row py-3 px-6 justify-between border border-[#B0C8DF] rounded-md bg-[#D9E4F0]">
-          <View className="flex flex-col items-center gap-2">
-            <TouchableOpacity className="rounded-full bg-white p-2">
-              <Feather name="package" size={24} color={"#004C98"} />
-            </TouchableOpacity>
-            <Text>Send</Text>
-          </View>
-          <View className="flex flex-col items-center gap-2">
-            <TouchableOpacity className="rounded-full bg-white p-2">
-              <MaterialCommunityIcons
-                name="map-marker-radius"
-                size={24}
-                color="#004C98"
+
+        <View
+          className="mx-4 my-4 rounded-xl overflow-hidden"
+          style={{ backgroundColor: "#004C98" }}
+        >
+          <MapView
+            className="w-full h-48"
+            initialRegion={initialRegion}
+            showsUserLocation={false}
+          >
+            {location && (
+              <Marker coordinate={location} title="Your Location">
+                <View className="p-2 bg-blue-500 rounded-full border-2 border-white">
+                  <FontAwesome name="user" size={20} color="white" />
+                </View>
+              </Marker>
+            )}
+            {lockersWithStations?.map(({ station }) =>
+              station ? (
+                <Marker
+                  key={station.id}
+                  coordinate={{
+                    latitude: station.latitude || 0,
+                    longitude: station.longitude || 0,
+                  }}
+                  title={station.name}
+                >
+                  <View className="p-2 bg-white rounded-full shadow-md">
+                    <FontAwesome name="building" size={20} color={"#004C98"} />
+                  </View>
+                </Marker>
+              ) : null
+            )}
+          </MapView>
+          <View className="p-4">
+            <View className="flex-row items-center bg-white rounded-xl px-4 py-3">
+              <TextInput
+                className="flex-1 text-base"
+                placeholder="Search location..."
+                placeholderTextColor="#888"
               />
-            </TouchableOpacity>
-            <Text>Find</Text>
-          </View>
-          <View className="flex flex-col items-center gap-2">
-            <TouchableOpacity className="rounded-full bg-white p-2">
-              <FontAwesome5 name="map-marked-alt" size={24} color="#004C98" />
-            </TouchableOpacity>
-            <Text>Track</Text>
+              <TouchableOpacity>
+                <FontAwesome name="search" size={20} color="#888" />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-    </ScrollView>
+
+        <Text
+          style={{ fontFamily: "Inter-Bold" }}
+          className="text-lg mb-3 mx-4 mt-4"
+        >
+          Packages Sent To You
+        </Text>
+        {isLoadingReceivedPackages ? (
+          <Text className="mx-4">Loading packages...</Text>
+        ) : receivedPackages && receivedPackages.length > 0 ? (
+          <FlatList
+            scrollEnabled={false}
+            data={receivedPackages}
+            keyExtractor={(item) => item.id as string}
+            renderItem={({ item: pkg }) => (
+              <OrderCard
+                onPress={() => {
+                  if (pkg.status !== "completed") {
+                    router.push({
+                      pathname: "/scan-pickup",
+                      params: { packageId: pkg.id },
+                    });
+                  }
+                }}
+                type={pkg.status === "in_transit" ? "inTransit" : "pickup"}
+                iconName={
+                  pkg.status === "in_locker_destination" ? "cube" : "inbox"
+                }
+                iconBgColor={
+                  pkg.status === "in_locker_destination" ? "#004C98" : "#FF6347"
+                }
+                title={`Package from ${pkg.sender?.full_name || "Unknown"}`}
+                packageId={pkg.id as string}
+                details={[
+                  { label: "Description", value: pkg.description as string },
+                ]}
+                statusText={pkg.status.replace(/_/g, " ")}
+                statusBgColor={
+                  pkg.status === "in_locker_destination" ? "#004C98" : "#32CD32"
+                }
+                isCurrentOrder={pkg.status !== "completed"}
+              />
+            )}
+          />
+        ) : (
+          <Text className="mx-4">No packages sent to you yet.</Text>
+        )}
+      </ScrollView>
+    </View>
   );
 };
 
-export default Home;
+export default HomeScreen;

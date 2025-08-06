@@ -9,3 +9,7 @@ export type Transaction = {
     created_at?:string;
     updated_at?:string;
 }
+
+export type TransactionStatus = | "pending" | "completed" | "failed" | "refunded"
+
+export type PaymentMethod = | "wallet_balance" | "payment_gateway" | "credit_card" | "bank_transfer"
