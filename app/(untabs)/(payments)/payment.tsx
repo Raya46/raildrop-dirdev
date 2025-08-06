@@ -8,5 +8,4 @@ const Payment = () => {
     </View>
   );
 };
-
 export default Payment;
