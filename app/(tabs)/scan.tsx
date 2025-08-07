@@ -26,7 +26,7 @@ const ScanScreen = () => {
         onPress: () => {
           router.push({
             pathname: "/receive",
-            params: { id: data, packageId: params.packageId as string },
+            params: { id: data, packageId: data },
           });
         },
       },
